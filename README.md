@@ -30,7 +30,7 @@ The goal is to understand how to build AI-powered applications, work with langua
 
 ### 3. Production Engineering
 
-This section is reserved for future experiments and projects related to building and deploying reliable AI applications. Learning to connect with real databases...
+This section is reserved for future experiments and projects related to building and deploying reliable AI applications.
 
 ## Tech Stack
 
