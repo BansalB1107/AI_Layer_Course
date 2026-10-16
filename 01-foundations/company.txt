@@ -1,0 +1,25 @@
+Company Information
+
+Company Name: GreenTech Solutions
+
+Founded: 2018
+
+Industry: Environmental Technology
+
+Head Office: Mumbai, India
+
+Main Activities:
+- Environmental data analysis
+- Forest monitoring technology
+- Sustainability software
+- Research and reporting
+
+Company Goal:
+GreenTech Solutions develops technology to help organizations understand environmental data and make better sustainability decisions.
+
+Departments:
+- Engineering
+- Research
+- Finance
+- Human Resources
+- Operations
