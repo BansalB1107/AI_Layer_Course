@@ -1,0 +1,21 @@
+Wild Animals
+
+Animal: Jaguar
+Habitat: Amazon rainforest
+Diet: Carnivore
+Fact: Jaguars are powerful predators and are excellent swimmers.
+
+Animal: Sloth
+Habitat: Tropical forests of Central and South America
+Diet: Leaves
+Fact: Sloths move slowly and spend much of their time in trees.
+
+Animal: Anaconda
+Habitat: Rivers, wetlands and forests of South America
+Diet: Carnivore
+Fact: Green anacondas are among the largest snakes in the world.
+
+Animal: Harpy Eagle
+Habitat: Tropical forests of Central and South America
+Diet: Carnivore
+Fact: The harpy eagle is a powerful forest-dwelling bird of prey.
