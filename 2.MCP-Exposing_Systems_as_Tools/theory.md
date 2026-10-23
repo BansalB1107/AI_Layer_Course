@@ -500,3 +500,552 @@ If we later choose Streamable HTTP, we will configure an HTTP-based MCP server a
 
 ---
 ---
+
+# Module 2 — MCP: Exposing Systems as Tools
+
+## 2.4 Building an MCP Server for Order and Inventory Operations
+
+**Official MCP documentation:** https://modelcontextprotocol.io/docs/2026-07-28/learn/server-concepts
+
+---
+
+## 1. What Are We Building?
+
+An AI assistant can use an MCP server to access business operations, such as checking an order's status or looking up inventory.
+
+Example questions:
+
+- What is the status of order 101?
+- How many Cloud Server Nodes are in stock?
+- What is the price of a Database SSD 2TB?
+
+The AI application can request the appropriate tool exposed by the MCP server.
+
+## 2. How Does a Business Operation Become an MCP Tool?
+
+There are three basic parts:
+
+1. **Data:** Business information, such as item names, stock quantities, prices, or order status.
+2. **Tool:** An operation exposed by the MCP server, such as `getInventory` or `getOrderStatus`.
+3. **Result:** The server runs the operation and returns the result to the MCP client.
+
+Example inventory data from our practice project:
+
+- Cloud Server Node — stock 45, price 120.
+- Database SSD 2TB — stock 12, price 250.
+- Network Switch 24-Port — stock 8, price 450.
+
+## 3. What Makes a Tool Useful to an AI?
+
+A useful tool definition communicates three things:
+
+- **Name:** What operation can be requested?
+- **Description:** When should the AI use the operation?
+- **Input schema:** What information must be supplied?
+
+For example, `getOrderStatus` may require an order ID. If the user has not supplied an order ID, the AI should ask for it rather than invent one.
+
+The MCP SDK can validate inputs against the schema defined for a tool.
+
+## 4. How Should We Organize the Server?
+
+For our learning project, keep the flow simple:
+
+1. Store or retrieve the business data.
+2. Define the business operation.
+3. Expose the operation as an MCP tool.
+4. Return a clear result or an understandable error.
+
+The server can expose multiple tools, such as `getOrderStatus` and `getInventory`. The AI application can request the appropriate tool based on the user's question.
+
+## 5. Example Request Flow
+
+```text
+User asks about order 101
+          |
+          v
+AI application decides it needs order information
+          |
+          v
+MCP client requests the order-status tool
+          |
+          v
+MCP server looks up order 101
+          |
+          v
+Server returns the actual status or a not-found result
+          |
+          v
+AI application presents the result to the user
+```
+
+## 6. Key Terms
+
+- **Business operation:** A task the system can perform, such as looking up an order.
+- **Tool definition:** The name, description, and input schema that explain an available operation.
+- **Tool handler:** The code that performs the operation when requested.
+- **Input validation:** Checking that the supplied input follows the expected schema.
+- **Not-found result:** A clear response when the requested order or item does not exist.
+
+## 7. Final Engineering Principles
+
+- Expose useful business operations as tools.
+- Give tools clear names and descriptions.
+- Define and validate required inputs.
+- Return actual results; never invent missing business data.
+- Return clear errors when an order or item cannot be found.
+- Keep the server's business logic understandable and testable.
+
+---
+
+## Official Reference
+
+https://modelcontextprotocol.io/docs/2026-07-28/learn/server-concepts
+
+---
+---
+
+# Module 2 — MCP: Exposing Systems as Tools
+
+## 2.5 Auth & Safety Hardening
+
+**Goal:** Understand the basic protections needed before an MCP server can safely expose business operations.
+
+---
+
+## 1. Why Authentication and Safety Matter
+
+An MCP server may expose information or operations from orders, inventory, customer records, or other business systems.
+
+If access is not controlled, an unauthorized client could read information or request operations it should not be allowed to perform.
+
+**Authentication** checks who is connecting. **Authorization** checks what that connection is allowed to do.
+
+---
+
+## 2. Authentication — Who Is Connecting?
+
+Authentication is the process of verifying the identity of a user, application, or client.
+
+For example, a company may require an approved application to authenticate before it can connect to an MCP server that provides order information.
+
+Do not assume that a client is trusted simply because it can reach the server.
+
+---
+
+## 3. Authorization — What Can It Do?
+
+After identifying a client, the system must decide which actions it may perform.
+
+For example:
+
+- A support assistant may be allowed to read order status.
+- An inventory assistant may be allowed to read stock quantities.
+- Only an authorized service may be allowed to update inventory.
+
+Give each client only the permissions it needs. This is the principle of **least privilege**.
+
+---
+
+## 4. Validate Tool Inputs
+
+Tool input schemas help check that a request contains the expected fields and types.
+
+For example, `getOrderStatus` may require an order ID. The server should reject missing or incorrectly formatted input rather than guessing what the user meant.
+
+Schema validation is important, but it does not replace business-rule checks. A correctly formatted order ID may still refer to an order the caller is not allowed to access.
+
+---
+
+## 5. Protect Sensitive Data
+
+An MCP server should return only the information needed for the requested task.
+
+For example, a request for an order's delivery status normally does not need to return a customer's full address, payment details, or unrelated personal information.
+
+Avoid placing passwords, API keys, access tokens, or other secrets in tool descriptions, responses, logs, or source code. Use appropriate environment configuration or secret-management facilities.
+
+---
+
+## 6. Treat Tool Calls as Real Operations
+
+Some tools only read information, while others change business data.
+
+Examples:
+
+- `getInventory` reads stock information.
+- `updateInventory` changes stock information.
+- `cancelOrder` changes an order's state.
+
+Read-only operations are generally lower risk. Operations that change data should have stricter permission checks and clear business rules. Sensitive actions may also require confirmation in the application.
+
+---
+
+## 7. Handle Errors Safely
+
+Return useful errors without exposing internal details.
+
+For example, the server can report that an order was not found or that the caller is not authorized. It should not reveal database credentials, secret values, internal stack traces, or unnecessary customer information.
+
+Record enough diagnostic information for authorized developers to investigate problems, while keeping secrets and sensitive data out of logs.
+
+---
+
+## 8. Key Engineering Principles
+
+- Authenticate clients when the system requires controlled access.
+- Authorize each operation; authentication alone is not enough.
+- Follow least privilege and expose only necessary capabilities.
+- Validate tool inputs and enforce business rules on the server.
+- Return only the data needed for the task.
+- Protect secrets and avoid exposing sensitive details in errors or logs.
+- Apply stronger safeguards to tools that change business data.
+- Do not assume that MCP automatically makes a server secure.
+
+---
+
+## Official References
+
+- MCP Authorization: https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization
+- MCP Security Best Practices: https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices
+
+---
+---
+
+# Module 2 — MCP: Exposing Systems as Tools
+
+## 2.6 Multi Round-Trip Requests
+
+**Goal:** Understand how an AI application may make several MCP requests before it can answer a user's question.
+
+---
+
+## 1. What Is a Round Trip?
+
+A **round trip** is a request sent from a client to a server and the response that comes back.
+
+For example, an MCP client may request the available tools from a server and receive a list of tool definitions. Later, it may call one of those tools and receive the result.
+
+Each request and its response form a round trip.
+
+---
+
+## 2. Why Multiple Round Trips Are Needed
+
+Some user requests need more than one operation.
+
+For example, answering **"Can order 101 be shipped today?"** might require the application to:
+
+- Look up order 101.
+- Check whether the required items are in stock.
+- Check the shipping rules or available delivery options.
+- Combine the returned information into an answer.
+
+The application may need multiple requests because each operation provides only part of the information.
+
+---
+
+## 3. A Simple Request Flow
+
+A multi-round-trip interaction can look like this:
+
+```text
+User asks a question
+        |
+        v
+AI application requests order details
+        |
+        v
+MCP server returns order details
+        |
+        v
+AI application requests inventory details
+        |
+        v
+MCP server returns inventory details
+        |
+        v
+AI application combines the results
+        |
+        v
+Assistant answers the user
+```
+
+The exact number of requests depends on the user's question and the tools available.
+
+---
+
+## 4. The Model and the MCP Client Have Different Roles
+
+The model helps interpret the user's request and determine what information or operation may be needed.
+
+The host application coordinates the workflow, while the MCP client sends protocol requests to the server and receives responses.
+
+The MCP server handles the requested operation and returns its result. It does not independently decide the complete conversation strategy.
+
+---
+
+## 5. Tool Discovery and Tool Calls
+
+A client may first ask the server which tools are available. It can then call a relevant tool using the required inputs.
+
+For example:
+
+- `tools/list` — discover the tools exposed by the server.
+- `tools/call` — request execution of a particular tool.
+
+These are different requests: one discovers available operations, while the other asks the server to perform an operation.
+
+An application may also repeat tool calls when it needs additional information to answer the same user request.
+
+---
+
+## 6. Sequential and Independent Requests
+
+Some requests depend on earlier results. For example, the application may need to read an order first to learn which products it contains before checking their inventory.
+
+Other requests may be independent. If order details and general shipping rules can be retrieved separately, the host may be able to request them without waiting for one another.
+
+The application should only run requests in parallel when they do not depend on each other's results and the implementation supports it.
+
+---
+
+## 7. Errors and Incomplete Results
+
+A multi-step workflow can fail at any round trip. A tool may return an error, an order may not exist, or the requested information may be unavailable.
+
+The host should check each result before relying on it. If a necessary step fails, the application should explain the limitation or follow an appropriate recovery path rather than inventing missing information.
+
+More round trips can provide richer answers, but they can also add latency and create more opportunities for failure.
+
+---
+
+## 8. Key Engineering Principles
+
+- A round trip consists of a request and its response.
+- Complex questions may require multiple MCP operations.
+- The host coordinates the overall workflow; the MCP client communicates with the server.
+- `tools/list` discovers tools, while `tools/call` requests an operation.
+- Run dependent requests in order and independent requests concurrently only when safe.
+- Check results and errors at every step.
+- Use returned data to support the final answer; do not invent missing facts.
+- More requests can increase latency and the chance of failure.
+
+---
+
+## Official Reference
+
+- MCP Architecture: https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture
+- MCP Tools: https://modelcontextprotocol.io/specification/2026-07-28/server/tools
+
+---
+---
+
+# Module 2 — MCP: Exposing Systems as Tools
+
+## 2.7 Consuming, Testing & Debugging the Server
+
+**Goal:** Understand how an MCP client connects to a server, checks its available tools, verifies results, and investigates common problems.
+
+---
+
+## 1. What Does It Mean to Consume an MCP Server?
+
+To **consume** an MCP server means to connect to it from an MCP client and use the capabilities it exposes.
+
+In our inventory example, the client connects to the server, discovers tools such as `getInventory`, and calls a tool when the application needs inventory information.
+
+The client and server must use compatible transport and protocol behavior.
+
+---
+
+## 2. Connect Using the Correct Transport
+
+The client must connect in the way the server expects.
+
+- **stdio:** The client typically starts the server as a local process and communicates through standard input and output.
+- **Streamable HTTP:** The client sends MCP requests to the server's HTTP endpoint.
+
+A common beginner mistake is trying to open a stdio server in a browser. A stdio server does not automatically provide a browser-accessible URL.
+
+---
+
+## 3. Discover the Available Tools
+
+After connecting, a client can request the server's tool list using `tools/list`.
+
+The list describes the tools available, including their names, descriptions, and input schemas. The client can use this information to understand which operations the server offers.
+
+If the expected tool is missing, check that the server registered it correctly and that the client connected to the intended server.
+
+---
+
+## 4. Call a Tool and Inspect the Result
+
+A client can request an operation using `tools/call`, supplying the required inputs.
+
+For example, a call to `getInventory` might return a product name and its stock quantity. Check whether the result contains the expected information and whether it represents a successful operation or an error.
+
+Do not assume that a request succeeded merely because the client connected successfully.
+
+---
+
+## 5. Test the Main Cases
+
+Testing should cover the basic behavior of each exposed operation:
+
+- **Valid input:** Does the tool return the expected result?
+- **Missing or invalid input:** Is the request rejected or handled clearly?
+- **Unknown item or order:** Does the server return a useful not-found result?
+- **Server or dependency failure:** Does the client receive a manageable error instead of crashing unexpectedly?
+
+For tools that change business data, also verify that they enforce the intended permissions and business rules.
+
+---
+
+## 6. Debug Common Connection Problems
+
+When a connection fails, check the most likely causes first:
+
+- Is the server starting without an error?
+- Is the client using the correct server command, file path, or HTTP endpoint?
+- Are the client and server using the same expected transport?
+- Are required packages and environment settings available?
+- For HTTP connections, is the server reachable at the configured endpoint?
+
+Read the actual error message before changing code. The issue may be a startup or configuration problem rather than a problem with the tool itself.
+
+---
+
+## 7. Use Logs and Clear Error Messages
+
+Logs can help identify whether the problem occurred during startup, connection, tool execution, or communication with an underlying database or API.
+
+For a stdio server, keep standard output reserved for MCP protocol messages. Unrelated debug messages printed to stdout can interfere with communication. Use standard error or the logging approach recommended by the SDK.
+
+Avoid logging secrets or unnecessary sensitive business data.
+
+---
+
+## 8. Key Engineering Principles
+
+- Consume an MCP server through a compatible MCP client.
+- Choose the correct transport: stdio or Streamable HTTP.
+- Use `tools/list` to discover tools and `tools/call` to request operations.
+- Test valid input, invalid input, missing records, and failures.
+- Inspect tool results rather than assuming every call succeeded.
+- Check startup, paths, endpoint configuration, dependencies, and transport when debugging.
+- For stdio servers, do not mix debug output into protocol messages on stdout.
+- Keep logs useful without exposing secrets or sensitive data.
+
+---
+
+## Official References
+
+- MCP Tools: https://modelcontextprotocol.io/specification/2026-07-28/server/tools
+- MCP Transports: https://modelcontextprotocol.io/docs/2026-07-28/basic/transports
+- MCP Architecture: https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture
+
+---
+---
+
+# Module 2 — MCP: Exposing Systems as Tools
+
+## 2.8 Packaging as a Client Deliverable
+
+**Goal:** Understand what needs to be included when handing an MCP server and its client integration to another developer or team.
+
+---
+
+## 1. What Does Packaging Mean?
+
+Packaging means preparing the MCP server and its related files so another person can install, configure, run, and understand the integration.
+
+A deliverable should include more than the server's source code. The receiving developer also needs to know how to start it, configure it, and connect a compatible MCP client.
+
+---
+
+## 2. Include the Necessary Project Files
+
+A basic deliverable may include:
+
+- The MCP server source code.
+- Any client configuration or example needed to connect to the server.
+- The package manifest and dependency information.
+- A README with setup and usage instructions.
+- An example environment configuration file, if needed, without real secrets.
+
+Include the files required to run the project, but do not include generated folders or local files that the recipient does not need.
+
+---
+
+## 3. Document Setup and Startup
+
+The README should explain the required Node.js version, how to install dependencies, which environment variables are needed, and how to start the server.
+
+Clearly identify the transport being used. For a stdio server, document the command or client configuration that launches the server. For a Streamable HTTP server, document the configured endpoint and the required startup process.
+
+Instructions should be clear enough that another developer does not need to guess how the server runs.
+
+---
+
+## 4. Explain the Available Tools
+
+Document the purpose of each important tool, its required inputs, and the kind of result it returns.
+
+For example:
+
+- `getOrderStatus` — looks up the status of an order using its order ID.
+- `getInventory` — returns stock information for a product.
+
+Mention any required permissions or limitations. Clear tool documentation helps the receiving team understand what the server can and cannot do.
+
+---
+
+## 5. Handle Configuration and Secrets Safely
+
+Do not package real API keys, passwords, access tokens, or production credentials in source code or example files.
+
+Provide an example configuration file with placeholder values, such as `API_KEY=replace_me`, and explain how the recipient should supply the real value securely.
+
+The server should validate required configuration at startup and report missing settings clearly, without printing secret values.
+
+---
+
+## 6. Include Reliability and Safety Information
+
+Explain any important operational requirements, such as required access permissions, expected external services, and common startup or connection errors.
+
+The recipient should know how the server handles invalid inputs, missing orders or products, and failures from underlying systems. Keep sensitive information out of logs and error messages.
+
+---
+
+## 7. Verify the Deliverable Before Handoff
+
+Before handing over the project, confirm that the documented setup steps are accurate and that the server starts with the required configuration.
+
+Check that the client can connect using the documented transport, discover the expected tools, and receive sensible results from basic calls. The recipient should be able to follow the instructions in a clean environment without relying on undocumented local settings.
+
+---
+
+## 8. Key Engineering Principles
+
+- Package the files needed to install, configure, run, and understand the integration.
+- Include clear setup instructions and dependency information.
+- Document the transport and how a client connects to the server.
+- Describe the tools, inputs, outputs, and important limitations.
+- Use placeholders for secrets; never bundle production credentials.
+- Explain configuration requirements and common errors.
+- Verify the instructions and basic client-server communication before handoff.
+- Make the deliverable understandable to someone who did not build it.
+
+---
+
+## Official References
+
+- MCP Introduction: https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro
+- MCP Transports: https://modelcontextprotocol.io/docs/2026-07-28/basic/transports
+- MCP Security Best Practices: https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices
+
+---
+---
