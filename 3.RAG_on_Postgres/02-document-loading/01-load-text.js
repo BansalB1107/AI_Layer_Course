@@ -1,3 +1,5 @@
+//cd 3.RAG_on_Postgres
+//cd 02-document-loading
 import fs from "fs/promises";
 
 // 1. Load the document from the current folder

@@ -1,3 +1,4 @@
+//cd 1.LLM_API_Fundamentals
 //npm init -y
 //npm install @google/genai dotenv
 //Use your gemini api in .env:GEMINI_API_KEY=your_actual_api_key_here

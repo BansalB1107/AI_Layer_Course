@@ -1,3 +1,33 @@
+/*Neon:Open your rag-on-postgres project.
+Open the SQL Editor.
+Run this SQL command:
+CREATE EXTENSION IF NOT EXISTS vector;
+
+Run:
+SELECT extname
+FROM pg_extension
+WHERE extname = 'vector';
+
+Create the storage table Run:
+CREATE TABLE IF NOT EXISTS document_chunks (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  document_name TEXT NOT NULL,
+  chunk_index INTEGER NOT NULL,
+  content TEXT NOT NULL,
+  embedding VECTOR(3072) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (document_name, chunk_index)
+);
+
+Verify the table Run:
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'document_chunks'
+ORDER BY ordinal_position;
+
+*/
+
+
 import dotenv from "dotenv";
 
 dotenv.config({ path: "../../.env" });

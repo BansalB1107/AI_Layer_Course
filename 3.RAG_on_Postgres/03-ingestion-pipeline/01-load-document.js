@@ -1,3 +1,5 @@
+//cd 3.RAG_on_Postgres
+//cd 03-ingestion-pipeline
 import fs from "fs/promises";
 
 // 1. Load the source document

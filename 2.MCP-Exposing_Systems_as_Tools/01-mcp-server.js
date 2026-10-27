@@ -1,3 +1,4 @@
+//cd 2.MCP-Exposing_System_as_Tools
 //npm install @modelcontextprotocol/server zod
 
 import "dotenv/config";
