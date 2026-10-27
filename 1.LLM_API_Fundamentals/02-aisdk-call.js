@@ -1,7 +1,8 @@
 //npm install ai @ai-sdk/google dotenv
 //Put your api gemini api key in .env :GOOGLE_GENERATIVE_AI_API_KEY=your_actual_api_key_here
 
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ path: "../.env" });
 import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
 

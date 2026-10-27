@@ -2,7 +2,8 @@
 //npm install @google/genai dotenv
 //Use your gemini api in .env:GEMINI_API_KEY=your_actual_api_key_here
 
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ path: "../.env" });
 import { GoogleGenAI } from "@google/genai";
 import readline from "readline/promises";
 
@@ -22,4 +23,4 @@ const response = await ai.models.generateContent({
 });
 
 console.log(response.text);
-//Run (terminal):node index.js
+//Run (terminal):node 01-native-call.js

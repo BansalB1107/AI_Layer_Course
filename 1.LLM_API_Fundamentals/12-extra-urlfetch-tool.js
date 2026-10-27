@@ -1,4 +1,5 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ path: "../.env" });
 
 import { generateText, stepCountIs, tool } from "ai";
 import { google } from "@ai-sdk/google";

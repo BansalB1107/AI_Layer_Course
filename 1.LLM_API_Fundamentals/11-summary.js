@@ -1,4 +1,5 @@
-import "dotenv/config"
+import dotenv from "dotenv";
+dotenv.config({ path: "../.env" });
 import { google } from "@ai-sdk/google"
 import { generateText } from "ai"
 import Readline from "readline/promises"
